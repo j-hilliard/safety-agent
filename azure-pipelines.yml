@@ -49,17 +49,26 @@ stages:
             displayName: 'install NuGet 6.5.0'
 
           - task: UseDotNet@2
+            displayName: 'Install .NET SDK 7.0.410'
             inputs:
-              version: '7.x'
-              packageType: 'runtime'
-            displayName: 'install .NET 7.x'
+              packageType: 'sdk'
+              version: '7.0.410'
+              installationPath: $(Agent.ToolsDirectory)/dotnet
+
+          - script: |
+              echo "##vso[task.prependpath]$(Agent.ToolsDirectory)/dotnet"
+              dotnet --info
+            displayName: 'Verify .NET SDK'
+
+          - task: NuGetAuthenticate@1
+            displayName: 'Authenticate to NuGet feeds'
 
           - task: DotNetCoreCLI@2
             inputs:
               command: 'restore'
+              projects: '**/*.sln'
               feedsToUse: 'config'
               nugetConfigPath: '$(System.DefaultWorkingDirectory)/nuget.config'
-            displayName: 'restore packages'
 
           - task: DotNetCoreCLI@2
             inputs:
@@ -101,7 +110,11 @@ stages:
 
           - script: |
               cd webapp
-              npm ci
+              if [ -f package-lock.json ]; then
+                npm ci
+              else
+                npm install
+              fi
             displayName: 'Install NPM packages'
 
           - script: |
