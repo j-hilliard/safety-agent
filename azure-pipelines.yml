@@ -1,0 +1,226 @@
+# ASP.NET Core (.NET Framework)
+# Build and test ASP.NET Core projects targeting the full .NET Framework.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+  - main
+
+variables:
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+  isMain: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
+  serviceConnection: 'STH-App-Dashboard-Pipeline'
+  skipNswagClientGeneration: 'true'
+  solution: '**/*.sln'
+  sqlDbNameDev: 'sth-sectemplate-test-sqldb'
+  #sqlDbNameProd: 'sth-tms-pd-sqldb'
+  sqlServerNameDev: 'sth-sectemplate-test-sql.database.windows.net'
+  #sqlServerNameProd: 'sth-tms-pd-sqlfog.database.windows.net'
+  subscription: 'STH-App-Dashboard-Pipeline'
+  vmImageUbuntu: 'ubuntu-latest'
+  vmImageWindows: 'windows-latest'
+
+stages:
+  - stage: build
+    jobs:
+      - job: build
+        pool:
+          vmImage: $(vmImageUbuntu)
+        steps:
+          - task: NuGetToolInstaller@1
+            inputs:
+              versionSpec: '>=6.5.0'
+            displayName: 'install NuGet 6.5.0'
+
+          - task: UseDotNet@2
+            inputs:
+              version: '7.x'
+              packageType: 'runtime'
+            displayName: 'install .NET 7.x'
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: 'restore'
+              feedsToUse: 'config'
+              nugetConfigPath: '$(System.DefaultWorkingDirectory)/nuget.config'
+            displayName: 'restore packages'
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: 'build'
+              arguments: '--no-restore --configuration $(buildConfiguration)'
+            displayName: 'build solution'
+
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: custom
+              custom: tool
+              arguments: 'install --global dotnet-ef --version 7.0.5 --ignore-failed-sources'
+            displayName: "install dotnet-ef"
+            condition: eq(variables.isMain, true)
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: custom
+              custom: ef
+              arguments: 'migrations script --configuration $(BuildConfiguration) --no-build --idempotent --output $(Build.ArtifactStagingDirectory)/migrations.sql'
+              workingDirectory: 'Data'
+            displayName: 'generate sql scripts'
+            condition: eq(variables.isMain, true)
+
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: 'publish'
+              publishWebProjects: false
+              arguments: '--no-restore --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+              projects: '**/Api.csproj'
+              zipAfterPublish: true
+            displayName: 'package core api'
+            condition: eq(variables.isMain, true)
+
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '20.17' # Specify the Node.js version compatible with your project
+            displayName: 'Install Node.js'
+
+          - script: |
+              cd webapp
+              npm install
+            displayName: 'Install NPM packages'
+
+          - script: |
+              cd webapp
+              npm run build:dev
+            displayName: 'Build Vue.js website'
+
+          - task: CopyFiles@2
+            inputs:
+              contents: 'webapp/dist/**'
+              targetFolder: '$(Build.ArtifactStagingDirectory)/webapp'
+            displayName: 'Copy Vue.js build output to artifact staging directory'
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: '$(Build.ArtifactStagingDirectory)/webapp'
+              artifactName: 'webapp'
+            displayName: 'Publish Vue.js build artifacts'
+            condition: eq(variables.isMain, true)
+
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: '$(Build.ArtifactStagingDirectory)'
+              artifactName: 'drop'
+            displayName: 'publish artifacts'
+            condition: eq(variables.isMain, true)
+
+  - stage: dev_deploy
+    displayName: 'dev deploy'
+    dependsOn: build
+    condition: and(succeeded(), eq(variables.isMain, true))
+    jobs:
+      - deployment: deploy_api
+        displayName: 'deploy api'
+        environment: dev
+        pool:
+          vmImage: $(vmImageWindows)
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzureCLI@2
+                  displayName: 'get database access token'
+                  inputs:
+                    azureSubscription: $(subscription)
+                    scriptType: ps
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      $token= & az account get-access-token --resource=https://database.windows.net --query accessToken
+                      Write-Output("##vso[task.setvariable variable=sqlToken;]$token")
+
+                - task: AzureAppServiceManage@0
+                  displayName: 'stop api'
+                  inputs:
+                    azureSubscription: $(subscription)
+                    action: 'Stop Azure App Service'
+                    webAppName: 'sth-sectemplate-dev-appapi'
+
+                - task: SqlAzureDacpacDeployment@1
+                  displayName: 'apply sql db migrations'
+                  inputs:
+                    azureSubscription: $(subscription)
+                    AuthenticationType: connectionString
+                    ConnectionString: 'Server=$(sqlServerNameDev);Initial Catalog=$(sqlDbNameDev);Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
+                    deployType: sqlTask
+                    SqlFile: '$(Pipeline.Workspace)/drop/migrations.sql'
+                    SqlAdditionalArguments: '-AccessToken $(sqlToken)'
+
+                - task: AzureWebApp@1
+                  displayName: 'deploy api'
+                  inputs:
+                    azureSubscription: $(subscription)
+                    appType: 'webAppLinux'
+                    appName: 'sth-sectemplate-dev-appapi'
+                    package: '$(Pipeline.Workspace)/**/Api.zip'
+                    deploymentType: 'runFromPackage'
+
+                - task: AzureAppServiceManage@0
+                  displayName: 'start api'
+                  inputs:
+                    azureSubscription: $(subscription)
+                    action: 'Start Azure App Service'
+                    webAppName: 'sth-sectemplate-dev-appapi'
+              
+      - deployment: deploy_vue_app
+        displayName: 'Deploy Vue.js Application'
+        environment: dev
+        pool:
+          vmImage: 'ubuntu-latest'
+        variables:
+          - group: Azure-Static-Web-Apps-calm-tree-014b27810-variable-group
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+
+                - download: current
+                  artifact: 'webapp'
+                  displayName: 'Download Vue.js artifact directly to working directory'
+
+                - script: |
+                    # Check if the directory exists
+                    if [ -d "$(System.DefaultWorkingDirectory)/webapp" ]; then
+                      echo "$(System.DefaultWorkingDirectory)/webapp exists."
+
+                      # Check if there are any files in the directory
+                      if [ "$(ls -A $(System.DefaultWorkingDirectory)/webapp)" ]; then
+                        echo "Directory is not empty, clearing out files."
+                        rm -rf $(System.DefaultWorkingDirectory)/webapp/*
+                      else
+                        echo "Directory is empty, no need to clear."
+                      fi
+                    else
+                      echo "Directory does not exist, creating directory."
+                      mkdir -p $(System.DefaultWorkingDirectory)/webapp
+                    fi
+                  displayName: "Check and clear webapp directory"
+
+                - script: |
+                    # Copy files after clearing the directory
+                    cp -r /home/vsts/work/1/webapp/webapp/dist/* $(System.DefaultWorkingDirectory)/webapp
+                  displayName: "Copy Vue.js files to default working directory"
+                
+                
+                - script: |
+                    echo "Current working directory is $(System.DefaultWorkingDirectory)"
+                    ls -la $(System.DefaultWorkingDirectory)/webapp
+                  displayName: 'Verify directory structure'
+                  
+                - task: AzureStaticWebApp@0
+                  displayName: 'Deploy to Azure Static Web App'
+                  inputs:
+                    app_location: 'webapp' # Path to the downloaded webapp artifact
+                    #output_location: '' # Update if the output folder is different
+                    azure_static_web_apps_api_token: $(AZURE_STATIC_WEB_APPS_API_TOKEN_CALM_TREE_014B27810)
+     

@@ -1,0 +1,159 @@
+{
+  "runtime": "Net70", // Specifies the .NET runtime to use. Options: "NetCore31", "Net50", "Net60", "Net70"
+  "defaultVariables": null, // Default variables for replacements in the document
+  "documentGenerator": {
+    "aspNetCoreToOpenApi": {
+      "project": "$(MSBuildProjectFullPath)", // Path to the ASP.NET Core project file
+      "msBuildProjectExtensionsPath": null, // Path for MSBuild project extensions (optional)
+      "configuration": "$(Configuration)", // Build configuration (e.g., "Debug" or "Release")
+      "runtime": "", // Specific runtime identifier (e.g., "win-x64", "linux-x64") (optional)
+      "targetFramework": "", // Target framework (e.g., "net6.0") (optional)
+      "noBuild": true, // Skip building the project before generating the OpenAPI document
+      "msBuildOutputPath": null, // Path to MSBuild output (optional)
+      "verbose": true, // Enable verbose output for debugging
+      "workingDirectory": null, // Working directory for executing the generator (optional)
+      "requireParametersWithoutDefault": false, // Require explicit default values for parameters
+      "apiGroupNames": null, // Group names for API controllers (optional)
+      "defaultPropertyNameHandling": "Default", // Property name handling. Options: "Default", "CamelCase"
+      "defaultReferenceTypeNullHandling": "Null", // Null handling for reference types. Options: "Null", "NotNull"
+      "defaultDictionaryValueReferenceTypeNullHandling": "NotNull", // Null handling for dictionary values
+      "defaultResponseReferenceTypeNullHandling": "NotNull", // Null handling for response reference types
+      "generateOriginalParameterNames": true, // Use original parameter names from the code
+      "defaultEnumHandling": "Integer", // Enum handling. Options: "Integer", "String"
+      "flattenInheritanceHierarchy": false, // Flatten the inheritance hierarchy for schemas
+      "generateKnownTypes": true, // Generate schemas for known types
+      "generateEnumMappingDescription": false, // Generate descriptions for enum mappings
+      "generateXmlObjects": false, // Include XML comments in the generated document
+      "generateAbstractProperties": false, // Include abstract properties in the schema
+      "generateAbstractSchemas": true, // Generate schemas for abstract types
+      "ignoreObsoleteProperties": false, // Ignore properties marked as obsolete
+      "allowReferencesWithProperties": false, // Allow references with additional properties
+      "useXmlDocumentation": true, // Use XML documentation files for generating descriptions
+      "resolveExternalXmlDocumentation": true, // Resolve external XML documentation references
+      "excludedTypeNames": [], // List of type names to exclude from generation
+      "serviceHost": null, // Host URL for the service (optional)
+      "serviceBasePath": null, // Base path for the service (optional)
+      "serviceSchemes": [], // List of schemes (e.g., "http", "https")
+      "infoTitle": "My Title", // Title of the OpenAPI document
+      "infoDescription": null, // Description of the OpenAPI document
+      "infoVersion": "1.0.0", // Version of the OpenAPI document
+      "documentTemplate": null, // Custom document template (optional)
+      "documentProcessorTypes": [], // Custom document processors (optional)
+      "operationProcessorTypes": [], // Custom operation processors (optional)
+      "typeNameGeneratorType": null, // Custom type name generator (optional)
+      "schemaNameGeneratorType": null, // Custom schema name generator (optional)
+      "contractResolverType": null, // Custom contract resolver (optional)
+      "serializerSettingsType": null, // Custom serializer settings type (optional)
+      "useDocumentProvider": true, // Use ASP.NET Core's IDocumentProvider
+      "documentName": "v1", // Name of the OpenAPI document
+      "aspNetCoreEnvironment": null, // ASP.NET Core environment name (optional)
+      "createWebHostBuilderMethod": null, // Method to create WebHostBuilder (optional)
+      "startupType": null, // Startup class type (optional)
+      "allowNullableBodyParameters": true, // Allow nullable body parameters
+      "useHttpAttributeNameAsOperationId": false, // Use HTTP attribute names as operation IDs
+      "output": null, // Output path for the generated OpenAPI document (optional)
+      "outputType": "Swagger2", // Output format. Options: "Swagger2", "OpenApi3"
+      "newLineBehavior": "Auto", // Newline behavior. Options: "Auto", "CRLF", "LF"
+      "assemblyPaths": [], // Additional assembly paths (optional)
+      "assemblyConfig": null, // Assembly configuration (optional)
+      "referencePaths": [], // Additional reference paths (optional)
+      "useNuGetCache": false // Use NuGet cache for resolving assemblies
+    }
+  },
+  "codeGenerators": {
+    "openApiToTypeScriptClient": {
+      "className": "$(ClientClassNamePrefix)Client", // Name of the generated client class
+      "moduleName": "", // Module name for the generated code (optional)
+      "namespace": "$(ClientNamespace)", // Namespace for the generated code (optional)
+      "typeScriptVersion": 4.4, // TypeScript version to use for the generated code
+      "template": "Axios", // Template for client generation. Options: "Fetch", "Axios", "Angular", "JQuery", "XMLHttpRequest", "Node", "VueAxios"
+      "promiseType": "Promise", // Type of promise. Options: "Promise", "Observable"
+      "httpClass": "HttpClient", // Custom HTTP client class (optional)
+      "withCredentials": false, // Include credentials in cross-origin requests
+      "useSingletonProvider": false, // Use a singleton provider for the client
+      "injectionTokenType": "OpaqueToken", // Type of injection token. Options: "OpaqueToken", "InjectionToken"
+      "rxJsVersion": 6.0, // Version of RxJS to use (if applicable)
+      "nullValue": "Undefined", // How to handle null values. Options: "Undefined", "Null"
+      "generateClientClasses": true, // Generate client classes for the API
+      "generateClientInterfaces": true, // Generate interfaces for API DTOs
+      "exportTypes": true, // Export type definitions
+      "wrapDtoExceptions": false, // Wrap exceptions in an ApiException class
+      "exceptionClass": "ApiException", // Name of the generated exception class
+      "clientBaseClass": null, // Base class for the generated client (optional)
+      "wrapResponseMethods": [], // Methods to wrap in a response class (optional)
+      "generateResponseClasses": true, // Generate response classes
+      "responseClass": "ApiResponse", // Name of the generated response class
+      "protectedMethods": [], // Methods that should be protected (optional)
+      "configurationClass": null, // Configuration class for the client (optional)
+      "useTransformOptionsMethod": false, // Use a method to transform request options
+      "useTransformResultMethod": false, // Use a method to transform response results
+      "generateDtoTypes": true, // Generate DTO types
+      "markOptionalProperties": true, // Mark optional properties in DTOs
+      "generateCloneMethod": false, // Generate a clone method for DTOs
+      "typeStyle": "Interface", // Style for DTOs. Options: "Class", "Interface"
+      "enumStyle": "Enum", // Style for enums. Options: "Enum", "StringLiteral"
+      "useLeafType": false, // Use leaf types for schemas
+      "classTypes": [], // Class types to include (optional)
+      "extendedClasses": [], // Extended classes (optional)
+      "extensionCode": null, // Custom code to include in the generated file (optional)
+      "generateDefaultValues": true, // Generate default values for DTO properties
+      "excludedTypeNames": [], // Type names to exclude from generation (optional)
+      "excludedParameterNames": [], // Parameter names to exclude from generation (optional)
+      "handleReferences": false, // Handle references in the generated code
+      "generateTypeCheckFunctions": false, // Generate type check functions
+      "generateConstructorInterface": false, // Generate a constructor interface
+      "convertConstructorInterfaceData": false, // Convert constructor interface data
+      "importRequiredTypes": true, // Import required types
+      "useGetBaseUrlMethod": false, // Generate a method to get the base URL
+      "baseUrlTokenName": "API_BASE_URL", // Name of the token for the base URL
+      "queryNullValue": "", // Value to use for null query parameters
+      "useAbortSignal": true, // Use AbortSignal for request cancellation
+      "inlineNamedDictionaries": false, // Inline named dictionaries in the generated code
+      "inlineNamedAny": false, // Inline named any in the generated code
+      "includeHttpContext": false, // Include HttpContext in the generated code (optional)
+      "templateDirectory": null, // Directory for custom templates (optional)
+      "typeNameGeneratorType": null, // Custom type name generator (optional)
+      "propertyNameGeneratorType": null, // Custom property name generator (optional)
+      "enumNameGeneratorType": null, // Custom enum name generator (optional)
+      "serviceHost": null, // Host for the service (optional)
+      "serviceSchemes": null, // Schemes for the service (e.g., "http", "https")
+      "output": "../WebApp/src/apiclient/client.ts", // Output path for the generated code
+      "newLineBehavior": "Auto", // Newline behavior. Options: "Auto", "CRLF", "LF"
+      "clientClassAccessModifier": "public", // Access modifier for client classes. Options: "public", "protected", "private"
+      "typeAccessModifier": "public", // Access modifier for types. Options: "public", "protected", "private"
+      "operationGenerationMode": "SingleClientFromPathSegments", // How to generate operations. Options: "SingleClientFromPathSegments", "MultipleClientsFromOperationId"
+      "additionalNamespaceUsages": [], // Additional namespaces to use (optional)
+      "additionalContractNamespaceUsages": [], // Additional contract namespaces to use (optional)
+      "generateOptionalParameters": true, // Generate optional parameters for methods
+      "generateJsonMethods": false, // Generate methods for JSON serialization
+      "enforceFlagEnums": false, // Enforce flag enums (optional)
+      "parameterArrayType": "System.Collections.Generic.IEnumerable", // Type for parameter arrays
+      "parameterDictionaryType": "System.Collections.Generic.IDictionary", // Type for parameter dictionaries
+      "responseArrayType": "System.Collections.Generic.ICollection", // Type for response arrays
+      "responseDictionaryType": "System.Collections.Generic.IDictionary", // Type for response dictionaries
+      "dateType": "System.DateTimeOffset", // Type for date properties
+      "timeType": "System.TimeSpan", // Type for time properties
+      "timeSpanType": "System.TimeSpan", // Type for TimeSpan properties
+      "arrayType": "System.Collections.Generic.ICollection", // Type for arrays
+      "arrayInstanceType": "System.Collections.ObjectModel.Collection", // Type for array instances
+      "wrapResponses": true, // Wrap responses in a custom class
+      "requiredPropertiesMustBeDefined": true, // Ensure required properties are defined
+      "dictionaryType": "System.Collections.Generic.IDictionary", // Type for dictionaries
+      "dictionaryInstanceType": "System.Collections.Generic.Dictionary", // Type for dictionary instances
+      "arrayBaseType": "System.Collections.ObjectModel.Collection", // Base type for arrays
+      "dictionaryBaseType": "System.Collections.Generic.Dictionary", // Base type for dictionaries
+      "jsonConverters": null, // Custom JSON converters (optional)
+      "anyType": "object", // Type to use for "any" properties
+      "classStyle": "Interface", // Style for classes. Options: "Poco", "Interface"
+      "jsonLibrary": "NewtonsoftJson", // JSON library to use. Options: "NewtonsoftJson", "SystemTextJson"
+      "generateDataAnnotations": true, // Generate data annotations
+      "generateImmutableArrayProperties": false, // Generate immutable array properties
+      "generateImmutableDictionaryProperties": false, // Generate immutable dictionary properties
+      "jsonSerializerSettingsTransformationMethod": null, // Custom method for JSON serializer settings (optional)
+      "inlineNamedArrays": false, // Inline named arrays
+      "inlineNamedTuples": true, // Inline named tuples
+      "generateOptionalPropertiesAsNullable": false, // Generate optional properties as nullable
+      "generateNullableReferenceTypes": false // Generate nullable reference types
+    }
+  }
+}

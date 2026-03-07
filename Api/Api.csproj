@@ -1,0 +1,92 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>aspnet-WebApp_Security_Template-8382B3D7-424D-43BF-9B4A-80A56F67A3D1</UserSecretsId>
+        <RootNamespace>Stronghold.AppDashboard.Api</RootNamespace>
+        <PackageId>Api</PackageId>
+        <NoWarn>$(NoWarn);CA1416</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AutoMapper" Version="13.0.1" />
+        <PackageReference Include="FluentValidation" Version="11.9.2" />
+        <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.9.2" />
+        <PackageReference Include="MediatR" Version="12.0.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.18" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="7.0.18" />
+        <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="7.0.20" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.1.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.1.0" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.18" />
+        <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="7.3.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.20">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.20" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.20">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.Azure" Version="1.7.4" />
+        <PackageReference Include="Microsoft.Identity.Client" Version="4.62.0" />
+        <PackageReference Include="Microsoft.Identity.Web" Version="3.0.1" />
+        <PackageReference Include="Microsoft.Identity.Web.MicrosoftGraph" Version="3.0.1" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="NSwag.AspNetCore" Version="13.20.0" />
+        <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="13.20.0" />
+        <PackageReference Include="NSwag.CodeGeneration.TypeScript" Version="13.20.0" />
+        <PackageReference Include="NSwag.Generation" Version="13.20.0" />
+        <PackageReference Include="NSwag.Generation.WebApi" Version="13.20.0" />
+        <PackageReference Include="NSwag.MSBuild" Version="13.20.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+        <PackageReference Include="System.DirectoryServices" Version="8.0.0" />
+        <PackageReference Include="System.DirectoryServices.AccountManagement" Version="8.0.0" />
+        <PackageReference Include="ZymLabs.NSwag.FluentValidation" Version="0.6.3" />
+        <PackageReference Include="ZymLabs.NSwag.FluentValidation.AspNetCore" Version="0.6.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Data\Data.csproj" />
+      <ProjectReference Include="..\Shared\Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="Properties\launchSettings.json">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+        <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </None>
+      <None Remove="obj\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Update="nswag.latest">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </Content>
+      <Content Remove="obj\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="obj\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="obj\**" />
+    </ItemGroup>
+
+    <Target Name="NSwag" AfterTargets="PostBuildEvent" Condition="'$(skipNswagClientGeneration)' != 'true'">
+        <Copy SourceFiles="@(ReferencePath)" DestinationFolder="$(OutDir)References" />
+        <Exec WorkingDirectory="$(ProjectDir)" Command="$(NSwagExe_Net70) run ../Api/nswag.json /variables:Configuration=$(Configuration),ClientNamespace=StrongholdApi,MSBuildProjectFullPath=&quot;$(MSBuildProjectFullPath)&quot;,ClientClassNamePrefix=Api" />
+        <RemoveDir Directories="$(OutDir)References" />
+    </Target>
+</Project>

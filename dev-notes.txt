@@ -1,0 +1,64 @@
+Clear out an old git setting and start over.  
+--------------------------------------------------
+1. start at the base of your project root folder and run the following command from admin command prompt or terminal.    rmdir /s /q .git
+2. Restart Git Working Dir on projects.
+	Open admin command prompt, cd\ into your project root folder
+	git init     press enter
+	git add .    press enter
+	git commit -m "Initial Commit"
+	
+	
+----------------------------------------------------------------------
+Connect to the Repo via SSH from commandline and push updates
+----------------------------------------------------------------------
+1.  Open admin command promt, cd\ into your project root folder
+2.  git remote add origin git@ssh.dev.azure.com:v3/stronghold-company/STH%20WebApp%20Security%20Template/STH%20WebApp%20Security%20Template       press enter
+3.  git push -u origin --all      press enter
+
+
+
+
+
+Vue.jS dependencies installed
+-----------------------------------------------------------------------------
+npm install axios typescript pinia   						 							//installs axios, typescript, and pinia
+npm update     																			// installs all updates for installed packages
+npm install --save-dev typescript @types/node @vitejs/plugin-vue 		 				//installs typescript and vitejs/plugin
+npx tsc --init     																		//initializes the initial typescript config file
+npm install --save-dev @typescript-eslint/eslint-plugin @typescript-eslint/parser       // installs eslint plugin
+
+
+npm install @azure/msal-browser															//install msal-browser  for azure ad sso
+
+
+
+-----------------------------------------------------------------------------------
+install mkcert and generate ssl certs to use for local dev and setup https port #
+-----------------------------------------------------------------------------------
+open command prompt, cd\ root of project solution
+mkcert -install						//type and press enter
+mkcert localhost 127.0.0.1 ::1		//type and press enter
+npm install vite-plugin-mkcert		//type and press enter
+
+configure vite.config.js  to add the following:
+import mkcert from 'vite-plugin-mkcert';
+plugins: [vue(),mkcert()]
+server:{port: 7063, https: true,}
+
+
+
+
+
+---------------------------------------------------------------------------------
+Vue.JS environment config
+---------------------------------------------------------------------------------
+There are 3 files at the root of the webapp folder structure that contains urls for the api for each of the environments.  .env.local, .env.dev, .env.prod.
+
+There are 3 commands used to run/build the web project.
+npm run dev  		 // this runs a copy of the project locally on the machine and references the api url configured in the .env.local file
+npm run build:dev 	 // this runs a build of the webclient (output to the ./webapp/dist folder) for purposes of being deployed to the dev server.
+npm run build:prod   // this runs a build of the webclient for use on the production server and also outputs to the ./webapp/dist folder.
+
+
+we utilize nswag on the API project, and evertime the api rebuilds it outputs a client.ts file to the vue.js webapp/src/apiclient/client.ts location.
+We utlize this typescript apiclient within the vue website to ensure everything stays strongly typed and simplify api calls.
