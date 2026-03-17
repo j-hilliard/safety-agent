@@ -44,21 +44,29 @@ app.config.globalProperties.$appState = reactive({
     isNewThemeLoaded: false,
 });
 
-msalInstance.initialize().then(async () => {
-    const apiStore = useApiStore();
+const bypassAuth = import.meta.env.VITE_BYPASS_AUTH === 'true';
+
+if (bypassAuth) {
     const userStore = useUserStore();
-    const account = await handleRedirectResponse();
+    userStore.setMockUser();
+    app.mount('#app');
+} else {
+    msalInstance.initialize().then(async () => {
+        const apiStore = useApiStore();
+        const userStore = useUserStore();
+        const account = await handleRedirectResponse();
 
-    await apiStore.setToken(account);
-    await userStore.setUser(account);
+        await apiStore.setToken(account);
+        await userStore.setUser(account);
 
-    if (!userStore.isAuthenticated) {
-        await login();
-    }
+        if (!userStore.isAuthenticated) {
+            await login();
+        }
 
-    return userStore.isAuthenticated;
-}).then(isAuthenticated => {
-    if (isAuthenticated) {
-        app.mount('#app');
-    }
-}).catch(error => console.error(error));
+        return userStore.isAuthenticated;
+    }).then(isAuthenticated => {
+        if (isAuthenticated) {
+            app.mount('#app');
+        }
+    }).catch(error => console.error(error));
+}

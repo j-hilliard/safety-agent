@@ -99,8 +99,10 @@ namespace Stronghold.AppDashboard.Api.Domain
                     && propType.GetGenericTypeDefinition() == typeof(List<>)
                 )
                 {
-                    // TODO - Alonso, figure out how to log collections
-                    // parameterStrings.Add($"{prop.Name}={BuildArrayString(propType.GetElementType(), propValue)}");
+                    var elementType = propType.GetGenericArguments()[0];
+                    parameterStrings.Add(
+                        $"{prop.Name}={BuildArrayString(elementType, propValue)}"
+                    );
                 }
                 else if (propType.IsClass)
                 {

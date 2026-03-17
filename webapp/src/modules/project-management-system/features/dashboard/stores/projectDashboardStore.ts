@@ -76,6 +76,10 @@ export const useProjectDashboardStore = defineStore('projectDashboard', () => {
         projectDialogVisible.value = true;
     }
 
+    function viewProject(project: any) {
+        openEditDialog(project);
+    }
+
     function closeDialog() {
         projectDialogVisible.value = false;
         deleteDialogVisible.value = false;
@@ -144,6 +148,7 @@ export const useProjectDashboardStore = defineStore('projectDashboard', () => {
         toggleActiveDialogHeader,
         openCreateDialog,
         openEditDialog,
+        viewProject,
         closeDialog,
         saveProject,
         confirmDelete,
@@ -152,4 +157,4 @@ export const useProjectDashboardStore = defineStore('projectDashboard', () => {
         toggleActiveConfirmed,
         v$,
     };
-}); 
+});

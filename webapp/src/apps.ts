@@ -29,4 +29,18 @@ export const apps = {
             admin: [],
         },
     } as App,
+    incidentManagement: {
+        baseSlug: 'incident-management',
+        name: 'Incident Management',
+        description: 'Create and manage incident reports',
+        icon: 'pi pi-exclamation-triangle',
+        menu: {
+            user: [
+                { label: 'Incidents', icon: 'pi pi-fw pi-list', to: '/incident-management/incidents' },
+                { label: 'New Incident', icon: 'pi pi-fw pi-plus', to: '/incident-management/incidents/new' },
+                { label: 'Investigations', icon: 'pi pi-fw pi-search', to: '/incident-management/investigations' },
+            ],
+            admin: [],
+        },
+    } as App,
 };

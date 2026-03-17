@@ -18,7 +18,17 @@ string tenantId = "78d53608-54ca-4a74-8beb-8a1399c1189c";
 string clientId = "619f5cca-8c0c-465c-8cfc-25427697f82c";
 
 var builder = WebApplication.CreateBuilder(args);
-var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+var environment = builder.Environment.EnvironmentName;
+var isLocal = builder.Environment.IsEnvironment("Local");
+
+if (isLocal)
+{
+    // Local dev often runs without permission to write Windows EventLog.
+    // Keep logs visible in terminal/debug output and avoid startup crashes.
+    builder.Logging.ClearProviders();
+    builder.Logging.AddConsole();
+    builder.Logging.AddDebug();
+}
 
 #pragma warning disable ASP0013
 builder.Host.ConfigureAppConfiguration(configurationBuilder =>
@@ -44,7 +54,7 @@ builder.Host.ConfigureAppConfiguration(configurationBuilder =>
     // Add appsettings.{environment}.json last to override configuration on developers' local machines
     configurationBuilder.AddJsonFile($"appsettings.{environment}.json", true, true);
 
-    if (environment == "Local")
+    if (isLocal)
         configurationBuilder.AddUserSecrets<Program>();
 });
 #pragma warning restore ASP0013
@@ -68,7 +78,7 @@ builder.Services.Configure<AppConfigExtensions.AppConfigOptions>(
     builder.Configuration.GetSection(ConfigurationSections.AppRegSecretForGraphAccess)
 );
 
-if (environment == "Development" || environment == "Production")
+if ((environment == "Development" || environment == "Production") && !AppConfigExtensions.IsRunningForNswagCodegen())
 {
     var azureAdSection = builder.Configuration.GetSection("AzureAd");
 
@@ -95,17 +105,33 @@ builder.Services.AddMemoryCache();
 builder.Services.AddControllers();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
+// Logging services
+builder.Services.AddScoped<IProcessLogService, ProcessLogService>();
+if (!AppConfigExtensions.IsRunningForNswagCodegen())
+    builder.Services.AddHostedService<LogPurgeService>();
+
 // Auth
 builder.Services.AddScoped<GraphService>();
-builder.Services.AddAzureAppConfiguration();
+if (!isLocal)
+    builder.Services.AddAzureAppConfiguration();
 builder.Services.AddSingleton<AzureAdHelper>();
-builder
-    .Services.AddAuthentication()
-    .AddMicrosoftIdentityWebApi(
-        builder.Configuration,
-        ConfigurationSections.AzureAd,
-        ConfigurationSections.AzureAd
-    );
+if (isLocal)
+{
+    // Bypass Azure AD in local dev - accepts all requests as the seeded local user.
+    builder.Services.AddAuthentication(Stronghold.AppDashboard.Api.Helpers.Constants.AuthenticationSchemes.AzureAd)
+        .AddScheme<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions, Stronghold.AppDashboard.Api.Authorization.LocalDevAuthHandler>(
+            Stronghold.AppDashboard.Api.Helpers.Constants.AuthenticationSchemes.AzureAd, _ => { });
+}
+else
+{
+    builder
+        .Services.AddAuthentication()
+        .AddMicrosoftIdentityWebApi(
+            builder.Configuration,
+            ConfigurationSections.AzureAd,
+            ConfigurationSections.AzureAd
+        );
+}
 builder.Services.AddSingleton<IPublicClientApplication>(sp =>
     PublicClientApplicationBuilder
         .Create(clientId)
@@ -232,7 +258,8 @@ else
 // If building an NSwag client, don't use Azure App Config
 if (!AppConfigExtensions.IsRunningForNswagCodegen())
 {
-    app.UseAzureAppConfiguration();
+    if (!isLocal)
+        app.UseAzureAppConfiguration();
 
     using var scope = app.Services.CreateScope();
     var services = scope.ServiceProvider;
@@ -240,10 +267,8 @@ if (!AppConfigExtensions.IsRunningForNswagCodegen())
 
     if (app.Environment.IsEnvironment("Local") || app.Environment.IsDevelopment())
     {
-        var created = context.Database.EnsureCreated();
-
-        if (created)
-            DbInitializer.Initialize(context);
+        context.Database.EnsureCreated();
+        DbInitializer.Initialize(context);
     }
     else if (app.Environment.IsProduction())
     {

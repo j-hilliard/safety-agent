@@ -15,9 +15,12 @@ namespace Stronghold.AppDashboard.Api.Configuration
             var options = new AppConfigOptions();
             configOptions(options);
 
+            // ✅ FIX: capture local intent BEFORE we mutate options.Environment
+            var isLocal = string.Equals(options.Environment, "Local", StringComparison.OrdinalIgnoreCase);
+
             TokenCredential credential;
 
-            if (options.Environment != "Local") // Azure Environment
+            if (!isLocal) // Azure Environment
             {
                 options.WriteMessage(
                     $"******************** Using Managed Identity for App Config - AppConfigManagedId: {options.AppConfigManagedId}, TenantId: {options.TenantId}"
@@ -55,6 +58,14 @@ namespace Stronghold.AppDashboard.Api.Configuration
             // If building an NSwag client, don't add azure App Config
             if (IsRunningForNswagCodegen())
             {
+                return configBuilder;
+            }
+
+            // ✅ FIX: For Local dev, do NOT call Azure App Configuration at startup.
+            // Local settings should come from appsettings.Local.json / appsettings.Development.json.
+            if (isLocal)
+            {
+                options.WriteMessage("******************** Local mode: skipping Azure App Configuration.");
                 return configBuilder;
             }
 

@@ -25,9 +25,11 @@ public class AzureAdHelper
             );
 
         if (string.IsNullOrWhiteSpace(appRegSecret))
-            throw new ArgumentException(
-                "AppRegSecretForGraphAccess is not configured correctly. Please check your configuration."
-            );
+        {
+            // Local dev — Graph access not configured; methods will return null.
+            _graphClient = null!;
+            return;
+        }
 
         var credentials = new ClientSecretCredential(tenantId, clientId, appRegSecret);
         _graphClient = new GraphServiceClient(credentials);

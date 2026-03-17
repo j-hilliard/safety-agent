@@ -8,3 +8,8 @@ sassdoc
 .sass-cache
 node_modules
 package-lock.json
+
+# Playwright (local E2E artifacts only)
+playwright-report/
+test-results/
+.playwright/

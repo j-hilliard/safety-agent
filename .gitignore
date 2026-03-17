@@ -560,3 +560,13 @@ Temporary Items
 .apdisk
 
 /.idea/*
+
+# Local dev secrets (do not commit)
+Api/appsettings.Local.json
+Api/appsettings.*.Local.json
+dev-start.bat
+
+# Local tooling state
+.claude/
+api-smoke*.log
+run-local*.log

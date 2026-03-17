@@ -18,6 +18,7 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ILogger<AuthorizationBehavior<TRequest, TResponse>> _logger;
     private readonly AzureAdHelper _azureAdHeler;
+    private readonly IWebHostEnvironment _env;
 
     public AuthorizationBehavior(
         IMapper mapper,
@@ -25,7 +26,8 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
         AzureAdHelper azureAdHelper,
         AppDbContext appDbContext,
         IHttpContextAccessor httpContextAccessor,
-        ILogger<AuthorizationBehavior<TRequest, TResponse>> logger
+        ILogger<AuthorizationBehavior<TRequest, TResponse>> logger,
+        IWebHostEnvironment env
     )
     {
         _mapper = mapper;
@@ -34,6 +36,7 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
         _appDbContext = appDbContext;
         _httpContextAccessor = httpContextAccessor;
         _logger = logger;
+        _env = env;
     }
 
     public async Task<TResponse> Handle(
@@ -42,6 +45,11 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
         CancellationToken cancellationToken
     )
     {
+        if (_env.EnvironmentName == "Local")
+        {
+            return await next();
+        }
+
         var httpContext = _httpContextAccessor.HttpContext;
         if (
             httpContext == null

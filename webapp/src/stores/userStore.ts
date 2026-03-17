@@ -54,6 +54,15 @@ export const useUserStore = defineStore('user', () => {
         user.value = await apiClient.value.getUserByAzureAdObjectId(azureAdObjectId).catch(() => null);
     }
 
+    function setMockUser() {
+        user.value = {
+            firstName: 'Joseph',
+            lastName: 'Hilliard',
+            email: 'joseph.hilliard@quantaservices.com',
+            roles: [{ role: { name: 'Administrator' } }],
+        } as User;
+    }
+
     async function getUserPhoto(account: AccountInfo | null) {
         if (!account) {
             return;
@@ -80,6 +89,7 @@ export const useUserStore = defineStore('user', () => {
         isAuthenticated,
         userAccountInfo,
         setUser,
+        setMockUser,
         logoutUser,
     };
 });

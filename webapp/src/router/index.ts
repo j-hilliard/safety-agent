@@ -4,6 +4,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import { billingPacketRoutes } from '@/modules/billing-packet-request-system/router';
 import { strongholdBizAppsSuiteRoutes } from '@/modules/stronghold-biz-apps-suite/router';
 import { projectManagementSystemRoutes } from '@/modules/project-management-system/router';
+import { incidentManagementRoutes } from '@/modules/incident-management/router';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 
@@ -22,6 +23,11 @@ const routes = [
         path: `/${apps.projectManagementSystem.baseSlug}`,
         component: () => import('@/layout/AppLayout.vue'),
         children: projectManagementSystemRoutes,
+    },
+    {
+        path: `/${apps.incidentManagement.baseSlug}`,
+        component: () => import('@/layout/AppLayout.vue'),
+        children: incidentManagementRoutes,
     },
     {
         path: '/authentication/login-callback',
