@@ -456,7 +456,7 @@ export async function installMockApi(page: Page): Promise<MockApiState> {
                 regionName: state.regions.find((x) => x.id === (body.regionId ?? existing.regionId))?.name ?? existing.regionName,
             };
             state.incidents[incidentIndex] = updated;
-            return replyJson(route, 200, updated);
+            return replyJson(route, 202, updated);
         }
 
         if (method === 'DELETE') {
@@ -469,3 +469,6 @@ export async function installMockApi(page: Page): Promise<MockApiState> {
 
     return state;
 }
+
+
+

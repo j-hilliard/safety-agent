@@ -1,5 +1,5 @@
 <template>
-    <div class="layout-menu-container bg-slate-900">
+    <div class="layout-menu-container app-shell-sidebar">
         <TheSubmenu
             root
             :items="model"

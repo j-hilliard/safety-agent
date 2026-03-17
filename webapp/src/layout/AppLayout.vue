@@ -17,7 +17,7 @@
                 @menuitem-click="onMenuItemClick"
             />
         </div>
-        <div class="layout-main bg-gradient-to-b from-slate-900 to-slate-800">
+        <div class="layout-main app-shell-main">
             <div class="layout-content p-12">
                 <router-view v-slot="{ Component }">
                     <Transition name="fade" mode="out-in">

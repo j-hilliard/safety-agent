@@ -83,6 +83,14 @@ test.describe('Incident Management workflows', () => {
             const row = page.locator('.p-datatable-tbody > tr', { hasText: jobTag }).first();
             await expect(row).toBeVisible();
 
+            await row.dblclick();
+            await expect(page).toHaveURL(new RegExp(`/incident-management/incidents/${createdId}$`));
+
+            await gotoAndStabilize(page, '/incident-management/incidents');
+            await page.getByPlaceholder('Search incidents...').fill(jobTag);
+            await page.locator('button:has(.pi-search)').first().click();
+            await expect(row).toBeVisible();
+
             await row.locator('button:has(.pi-pencil)').click();
             await expect(page).toHaveURL(new RegExp(`/incident-management/incidents/${createdId}$`));
 
@@ -163,6 +171,7 @@ test.describe('Incident Management workflows', () => {
             const newIncidentRow = page.locator('.p-datatable-tbody > tr', { hasText: jobTag }).first();
             await newIncidentRow.locator('button:has(.pi-trash)').click();
             await acceptPrimeConfirmDialog(page);
+            await page.locator('button:has(.pi-search)').first().click();
             await expect(page.locator('.p-datatable-tbody > tr', { hasText: jobTag })).toHaveCount(0);
 
             shouldCleanup = false;

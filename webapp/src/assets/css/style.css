@@ -6,8 +6,17 @@
 
 :root {
     line-height: 1.5;
-    --navy-800: #1e293b;
-    --navy-900: #0f172a;
+    --navy-800: #1b2a45;
+    --navy-900: #0a1430;
+    --shell-topbar: #0d1b38;
+    --shell-sidebar: #0b1733;
+    --shell-main-start: #0a1430;
+    --shell-main-end: #172744;
+    --shell-surface: #1b2b45;
+    --shell-surface-alt: #21334f;
+    --shell-border: #324966;
+    --shell-text: #d8e4f5;
+    --shell-text-muted: #9fb2cc;
     font-synthesis: none;
     --content-alt-bg-color: #4E565F;
     -moz-osx-font-smoothing: grayscale;
@@ -16,9 +25,45 @@
 }
 
 body {
-    @apply text-slate-100;
+    color: var(--shell-text);
     background-color: var(--navy-900);
     font-family: "Montserrat", sans-serif !important;
+}
+
+.app-shell-main {
+    background: linear-gradient(180deg, var(--shell-main-start) 0%, var(--shell-main-end) 100%);
+}
+
+.app-shell-sidebar {
+    background-color: var(--shell-sidebar);
+}
+
+.app-shell-topbar {
+    background-color: var(--shell-topbar);
+    border-bottom: 1px solid color-mix(in srgb, var(--shell-border) 65%, transparent);
+}
+
+.app-shell-menu-button {
+    background-color: color-mix(in srgb, var(--shell-surface) 78%, transparent);
+}
+
+.app-shell-avatar {
+    background-color: color-mix(in srgb, var(--shell-surface-alt) 82%, transparent);
+}
+
+.app-shell-topbar-text {
+    color: var(--shell-text-muted);
+}
+
+.app-shell-card {
+    background-color: color-mix(in srgb, var(--shell-surface) 88%, transparent);
+    border: 1px solid var(--shell-border);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+}
+
+.app-shell-table {
+    background-color: color-mix(in srgb, var(--shell-surface) 78%, transparent);
+    border: 1px solid var(--shell-border);
 }
 
 .fade-enter-active, .fade-leave-active {
@@ -62,42 +107,50 @@ body {
 }
 
 .p-datatable .p-datatable-thead > tr > th {
-    @apply bg-slate-800/50 text-slate-300 border-slate-700;
+    background: color-mix(in srgb, var(--shell-surface-alt) 72%, transparent) !important;
+    color: var(--shell-text) !important;
+    border-color: var(--shell-border) !important;
     text-transform: uppercase;
 }
 
 .p-datatable .p-datatable-tbody > tr {
-    @apply bg-transparent text-slate-300 border-slate-700;
+    background: color-mix(in srgb, #0f1f39 82%, transparent);
+    color: var(--shell-text) !important;
+    border-color: var(--shell-border) !important;
 }
 
 .p-datatable .p-datatable-tbody > tr:nth-child(even) {
-    @apply bg-slate-800/30;
+    background: color-mix(in srgb, #162a4a 82%, transparent);
 }
 
 .p-datatable .p-datatable-tbody > tr:hover {
-    @apply bg-slate-700/30;
+    background: color-mix(in srgb, #23395b 78%, transparent);
 }
 
 .p-dropdown {
-    @apply bg-slate-700 border-slate-600;
+    background: color-mix(in srgb, var(--shell-surface-alt) 75%, transparent) !important;
+    border-color: var(--shell-border) !important;
 }
 
 .p-dropdown-panel {
-    @apply bg-slate-700 border-slate-600;
+    background: color-mix(in srgb, var(--shell-surface-alt) 92%, transparent) !important;
+    border-color: var(--shell-border) !important;
 }
 
 .p-dropdown-item {
-    @apply text-slate-200;
+    color: var(--shell-text) !important;
 }
 
 .p-dropdown-item:hover {
-    @apply bg-slate-600;
+    background: color-mix(in srgb, #23395b 78%, transparent) !important;
 }
 
 .p-inputtext,
 .p-textarea,
 .p-multiselect {
-    @apply bg-slate-700 border-slate-600 text-slate-200;
+    background: color-mix(in srgb, var(--shell-surface-alt) 75%, transparent) !important;
+    border-color: var(--shell-border) !important;
+    color: var(--shell-text) !important;
 }
 
 .p-inputtext:focus,

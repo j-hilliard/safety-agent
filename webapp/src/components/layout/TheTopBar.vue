@@ -1,5 +1,5 @@
 <template>
-    <div class="layout-topbar bg-slate-900 border-b border-slate-700/50">
+    <div class="layout-topbar app-shell-topbar">
         <div class="layout-topbar-wrapper">
             <div class="layout-topbar-left">
                 <router-link to="/">
@@ -9,7 +9,7 @@
                 </router-link>
             </div>
             <div class="layout-topbar-right">
-                <a href="#" @click="$emit('menu-button-click', $event)" class="menu-button bg-slate-800">
+                <a href="#" @click="$emit('menu-button-click', $event)" class="menu-button app-shell-menu-button">
                     <i class="pi pi-bars" />
                 </a>
                 <Breadcrumb :model="breadcrumbItems" class="ml-4" />
@@ -27,10 +27,10 @@
                                 :src="userStore.userPhoto"
                                 class="profile-image round-image"
                             />
-                            <div v-else class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center">
+                            <div v-else class="w-10 h-10 rounded-full app-shell-avatar flex items-center justify-center">
                                 <i class="pi pi-user text-slate-300" />
                             </div>
-                            <div class="profile-info text-slate-300">
+                            <div class="profile-info app-shell-topbar-text">
                                 <h6>{{ userStore.userFullName }}</h6>
                                 <span v-if="userStore.userTitle">{{ userStore.userTitle }}</span>
                             </div>
@@ -44,7 +44,7 @@
                                     class="profile-image, round-image"
                                 />
                                 <div v-else
-                                     class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center">
+                                     class="w-10 h-10 rounded-full app-shell-avatar flex items-center justify-center">
                                     <i class="pi pi-user text-slate-300" />
                                 </div>
                                 <div class="profile-info">

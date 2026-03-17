@@ -1,5 +1,11 @@
 <template>
-    <BaseDataTable :value="store.incidents" :loading="store.loading" emptyMessage="No incidents found.">
+    <BaseDataTable
+        :value="store.incidents"
+        :loading="store.loading"
+        emptyMessage="No incidents found."
+        dataKey="id"
+        @row-dblclick="onRowDblClick"
+    >
         <template #filters>
             <InputText
                 v-model="store.searchTerm"
@@ -109,4 +115,24 @@ function confirmDelete(incident: IncidentReportListItem) {
         accept: () => store.deleteIncident(incident.id!),
     });
 }
+
+function openIncident(id?: string) {
+    if (!id) return;
+    router.push(`/${apps.incidentManagement.baseSlug}/incidents/${id}`);
+}
+
+function onRowDblClick(event: { data?: IncidentReportListItem; originalEvent?: MouseEvent }) {
+    const target = event?.originalEvent?.target as HTMLElement | null;
+    if (target?.closest('button, a, .p-button, .p-tag')) {
+        return;
+    }
+
+    openIncident(event?.data?.id);
+}
 </script>
+
+<style scoped>
+:deep(.p-datatable .p-datatable-tbody > tr) {
+    cursor: pointer;
+}
+</style>

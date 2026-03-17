@@ -18,6 +18,20 @@ namespace Stronghold.AppDashboard.Data.Migrations
                 name: "PK_AppDirectoryOrders",
                 table: "AppDirectoryOrders");
 
+            migrationBuilder.AddColumn<bool>(
+                name: "IsAdmin",
+                table: "IntegratedAppOrders",
+                type: "bit",
+                nullable: false,
+                defaultValue: false);
+
+            migrationBuilder.AddColumn<bool>(
+                name: "IsAdmin",
+                table: "AppDirectoryOrders",
+                type: "bit",
+                nullable: false,
+                defaultValue: false);
+
             migrationBuilder.AddPrimaryKey(
                 name: "PK_IntegratedAppOrders",
                 table: "IntegratedAppOrders",

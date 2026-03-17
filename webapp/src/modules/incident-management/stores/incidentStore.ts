@@ -13,11 +13,98 @@ import {
 const EMPTY_FORM = (): IncidentReport => {
     const r = new IncidentReport();
     r.incidentDate = new Date();
+    r.incidentClass = 'Actual';
     r.employeesInvolved = [];
     r.actions = [];
     r.referenceIds = [];
     return r;
 };
+
+function getErrorDetail(error: unknown, fallback: string): string {
+    if (Array.isArray(error)) {
+        const messages = error
+            .map((x) => {
+                if (x && typeof x === 'object' && 'message' in x) {
+                    return String((x as { message?: string }).message ?? '').trim();
+                }
+                return String(x ?? '').trim();
+            })
+            .filter(Boolean);
+
+        if (messages.length > 0) {
+            return messages.join(' ');
+        }
+    }
+
+    const anyError = error as {
+        response?: unknown;
+        result?: unknown;
+        message?: string;
+    };
+
+    const payloads = [anyError?.result, anyError?.response];
+
+    for (const payload of payloads) {
+        if (!payload) continue;
+
+        let obj: unknown = payload;
+        if (typeof payload === 'string') {
+            try {
+                obj = JSON.parse(payload);
+            } catch {
+                if (payload.trim().length > 0) {
+                    return payload;
+                }
+                continue;
+            }
+        }
+
+        if (Array.isArray(obj)) {
+            const validationMessages = obj
+                .map((x) => {
+                    if (x && typeof x === 'object' && 'message' in x) {
+                        return String((x as { message?: string }).message ?? '').trim();
+                    }
+                    return '';
+                })
+                .filter(Boolean);
+
+            if (validationMessages.length > 0) {
+                return validationMessages.join(' ');
+            }
+        }
+
+        if (obj && typeof obj === 'object') {
+            const err = obj as {
+                title?: string;
+                detail?: string;
+                errors?: Record<string, string[]>;
+            };
+
+            const validationErrors = err.errors
+                ? Object.values(err.errors).flat().filter(Boolean)
+                : [];
+
+            if (validationErrors.length > 0) {
+                return validationErrors.join(' ');
+            }
+
+            if (err.detail) {
+                return err.detail;
+            }
+
+            if (err.title) {
+                return err.title;
+            }
+        }
+    }
+
+    if (anyError?.message) {
+        return anyError.message;
+    }
+
+    return fallback;
+}
 
 export const useIncidentStore = defineStore('incident', () => {
     const apiStore = useApiStore();
@@ -75,8 +162,13 @@ export const useIncidentStore = defineStore('incident', () => {
             const created = await getClient().createIncident(form.value);
             toast.add({ severity: 'success', summary: 'Incident Created', detail: `Incident ${created.incidentNumber} created successfully.`, life: 3000 });
             return created;
-        } catch {
-            toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to create incident report.', life: 4000 });
+        } catch (error) {
+            toast.add({
+                severity: 'error',
+                summary: 'Create Failed',
+                detail: getErrorDetail(error, 'Failed to create incident report.'),
+                life: 5000,
+            });
             return null;
         } finally {
             saving.value = false;
@@ -89,8 +181,13 @@ export const useIncidentStore = defineStore('incident', () => {
             const updated = await getClient().updateIncident(id, form.value);
             toast.add({ severity: 'success', summary: 'Incident Updated', detail: 'Incident report saved.', life: 3000 });
             return updated ?? null;
-        } catch {
-            toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save incident report.', life: 4000 });
+        } catch (error) {
+            toast.add({
+                severity: 'error',
+                summary: 'Save Failed',
+                detail: getErrorDetail(error, 'Failed to save incident report.'),
+                life: 5000,
+            });
             return null;
         } finally {
             saving.value = false;
@@ -172,3 +269,4 @@ export const useIncidentStore = defineStore('incident', () => {
         isReferenceSelected,
     };
 });
+

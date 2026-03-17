@@ -56,20 +56,28 @@ onMounted(async () => {
     }
 });
 
-async function saveDraft() {
+async function saveDraft(): Promise<boolean> {
     if (isEdit.value) {
-        await store.updateIncident(route.params.id as string);
+        const updated = await store.updateIncident(route.params.id as string);
+        return !!updated;
     } else {
         const created = await store.createIncident();
         if (created?.id) {
             router.replace(`/${apps.incidentManagement.baseSlug}/incidents/${created.id}`);
+            return true;
         }
+        return false;
     }
 }
 
 async function submitForm() {
+    const previousStatus = store.form.status;
     store.form.status = 'SUBMIT';
-    await saveDraft();
-    router.push(`/${apps.incidentManagement.baseSlug}/incidents`);
+    const saved = await saveDraft();
+    if (saved) {
+        router.push(`/${apps.incidentManagement.baseSlug}/incidents`);
+    } else {
+        store.form.status = previousStatus;
+    }
 }
 </script>

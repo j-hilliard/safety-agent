@@ -166,11 +166,11 @@
                             <div class="grid grid-cols-2 gap-2 mt-3">
                                 <div>
                                     <label class="text-xs text-slate-400 block mb-1">Type of equipment</label>
-                                    <InputText class="w-full" size="small" placeholder="Equipment type" />
+                                    <InputText class="w-full" placeholder="Equipment type" />
                                 </div>
                                 <div>
                                     <label class="text-xs text-slate-400 block mb-1">Unit Numbers</label>
-                                    <InputText class="w-full" size="small" placeholder="Unit #" />
+                                    <InputText class="w-full" placeholder="Unit #" />
                                 </div>
                             </div>
                         </div>
@@ -194,11 +194,11 @@
                             <div class="grid grid-cols-2 gap-2 mt-3">
                                 <div>
                                     <label class="text-xs text-slate-400 block mb-1">Nature of Injury</label>
-                                    <InputText class="w-full" size="small" placeholder="Nature of injury" />
+                                    <InputText class="w-full" placeholder="Nature of injury" />
                                 </div>
                                 <div>
                                     <label class="text-xs text-slate-400 block mb-1">Body Part Injured</label>
-                                    <InputText class="w-full" size="small" placeholder="Body part" />
+                                    <InputText class="w-full" placeholder="Body part" />
                                 </div>
                             </div>
                         </div>
@@ -220,11 +220,11 @@
                             <div class="grid grid-cols-2 gap-2 mt-3">
                                 <div>
                                     <label class="text-xs text-slate-400 block mb-1">Visibility</label>
-                                    <InputText class="w-full" size="small" placeholder="Visibility conditions" />
+                                    <InputText class="w-full" placeholder="Visibility conditions" />
                                 </div>
                                 <div>
                                     <label class="text-xs text-slate-400 block mb-1">Road Surface</label>
-                                    <InputText class="w-full" size="small" placeholder="Road surface condition" />
+                                    <InputText class="w-full" placeholder="Road surface condition" />
                                 </div>
                             </div>
                         </div>
@@ -343,8 +343,17 @@ async function onCompanyChange() {
 .severity-radio-row :deep(.p-radiobutton .p-radiobutton-box:hover) {
     border-color: #93c5fd;
 }
+.severity-radio-row :deep(.p-radiobutton.p-radiobutton-checked .p-radiobutton-box) {
+    background: #2563eb;
+    border-color: #60a5fa;
+}
 .severity-radio-row :deep(.p-radiobutton .p-radiobutton-icon) {
     width: 10px;
     height: 10px;
+    background: #ffffff;
+}
+.severity-radio-row :deep(.p-radiobutton.p-focus .p-radiobutton-box) {
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.35);
 }
 </style>
+
