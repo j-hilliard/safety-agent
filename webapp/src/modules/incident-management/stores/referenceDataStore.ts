@@ -24,17 +24,34 @@ export const useReferenceDataStore = defineStore('incidentReferenceData', () => 
         loading.value = true;
         try {
             const client = getClient();
-            const [c, s, opts, ws] = await Promise.all([
+            const [companiesResult, severitiesResult, optionsResult, workflowStatesResult] = await Promise.allSettled([
                 client.getCompanies(),
                 client.getSeverities(),
                 client.getIncidentReferenceOptions(),
                 client.getWorkflowStates(undefined),
             ]);
-            companies.value = c;
-            severities.value = s;
-            incidentOptions.value = opts as Record<string, RefOptionDto[]>;
-            workflowStates.value = ws;
-            initialized.value = true;
+
+            if (companiesResult.status === 'fulfilled') {
+                companies.value = companiesResult.value;
+            }
+
+            if (severitiesResult.status === 'fulfilled') {
+                severities.value = severitiesResult.value;
+            }
+
+            if (optionsResult.status === 'fulfilled') {
+                incidentOptions.value = optionsResult.value as Record<string, RefOptionDto[]>;
+            }
+
+            if (workflowStatesResult.status === 'fulfilled') {
+                workflowStates.value = workflowStatesResult.value;
+            }
+
+            initialized.value =
+                companiesResult.status === 'fulfilled'
+                && severitiesResult.status === 'fulfilled'
+                && optionsResult.status === 'fulfilled'
+                && workflowStatesResult.status === 'fulfilled';
         } finally {
             loading.value = false;
         }
@@ -42,7 +59,16 @@ export const useReferenceDataStore = defineStore('incidentReferenceData', () => 
 
     async function loadRegions(companyId?: string) {
         const client = getClient();
-        regions.value = await client.getRegions(companyId ?? null);
+        try {
+            regions.value = await client.getRegions(companyId ?? null);
+
+            // If company-specific mapping is incomplete, ensure users still see region options.
+            if (companyId && regions.value.length === 0) {
+                regions.value = await client.getRegions(null);
+            }
+        } catch {
+            regions.value = [];
+        }
     }
 
     function getOptionsByType(typeCode: string): RefOptionDto[] {

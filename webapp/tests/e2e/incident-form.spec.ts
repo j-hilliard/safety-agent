@@ -27,6 +27,35 @@ async function deleteIncidentByJobTag(page, jobTag: string) {
 test.describe('Incident Management workflows', () => {
     test.describe.configure({ timeout: 120_000 });
 
+    test('company and region dropdowns still load if incident-options endpoint fails', async ({ page, runtimeErrors }) => {
+        await page.route('**/v1/ReferenceData/incident-options', async (route) => {
+            await route.fulfill({
+                status: 500,
+                contentType: 'application/json',
+                body: JSON.stringify({ title: 'Simulated incident-options failure' }),
+            });
+        });
+
+        await gotoAndStabilize(page, '/incident-management/incidents/new');
+
+        const companyDropdown = page.locator('.p-dropdown').first();
+        await companyDropdown.click();
+
+        const companyOptions = page.locator('.p-dropdown-panel .p-dropdown-item');
+        await expect(companyOptions).toHaveCount(2);
+        await companyOptions.first().click();
+
+        const regionDropdown = page.locator('.p-dropdown').nth(1);
+        await expect(regionDropdown).not.toHaveClass(/p-disabled/);
+        await regionDropdown.click();
+
+        const regionOptions = page.locator('.p-dropdown-panel .p-dropdown-item');
+        await expect(regionOptions).toHaveCount(1);
+
+        // This test intentionally simulates a 500 for incident-options.
+        // We only assert that company/region dropdown UX remains usable.
+    });
+
     test('incident list supports search, new, edit, and delete actions', async ({ page, runtimeErrors }) => {
         const jobTag = `PW-LIST-${Date.now()}`;
         let shouldCleanup = true;

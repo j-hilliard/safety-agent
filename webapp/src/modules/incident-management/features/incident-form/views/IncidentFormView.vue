@@ -50,6 +50,9 @@ onMounted(async () => {
     await refStore.loadAll();
     if (isEdit.value) {
         await store.loadIncident(route.params.id as string);
+        if (store.form.companyId) {
+            await refStore.loadRegions(store.form.companyId);
+        }
     }
 });
 
